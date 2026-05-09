@@ -39,6 +39,32 @@ const Login = () => {
     const themeColor = schoolInfo?.theme_color || '#4f46e5';
     const displayLogo = schoolInfo?.logo;
 
+    const handleQuickLogin = async (roleType) => {
+        let creds = { email: '', password: 'password' };
+        
+        switch(roleType) {
+            case 'admin': creds.email = 'admin@platform.com'; break;
+            case 'supplier': creds.email = 'supplier@alpha.com'; break;
+            case 'school': creds.email = 'admin@greenwood.com'; break;
+            case 'user': creds.email = 'parent@greenwood.com'; break;
+            default: return;
+        }
+
+        setError('');
+        setLoading(true);
+        const result = await login(creds.email, creds.password);
+
+        if (result.success) {
+            if (result.role === 'super_admin') window.location.href = '/admin';
+            else if (result.role === 'school') window.location.href = '/school';
+            else if (result.role === 'supplier') window.location.href = '/supplier';
+            else navigate('/');
+        } else {
+            setError(result.message);
+            setLoading(false);
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
@@ -201,6 +227,33 @@ const Login = () => {
                             )}
                         </motion.button>
                     </form>
+
+                    {/* Quick Login Section */}
+                    <div className="mt-12 space-y-4">
+                        <div className="flex items-center gap-4">
+                            <div className="h-1 bg-slate-100 flex-1 rounded-full"></div>
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-300">Quick Login</span>
+                            <div className="h-1 bg-slate-100 flex-1 rounded-full"></div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            {[
+                                { role: 'admin', label: 'Admin', icon: <Zap size={14} />, color: '#6366f1' },
+                                { role: 'supplier', label: 'Supplier', icon: <RefreshCw size={14} />, color: '#ec4899' },
+                                { role: 'school', label: 'School', icon: <GraduationCap size={14} />, color: '#00778a' },
+                                { role: 'user', label: 'User', icon: <Star size={14} />, color: '#f59e0b' }
+                            ].map((btn) => (
+                                <button
+                                    key={btn.role}
+                                    type="button"
+                                    onClick={() => handleQuickLogin(btn.role)}
+                                    className="flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-slate-50 border-2 border-slate-100 hover:border-slate-200 hover:bg-slate-100 transition-all text-[10px] font-black uppercase tracking-wider text-slate-600"
+                                >
+                                    <span style={{ color: btn.color }}>{btn.icon}</span>
+                                    {btn.label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
 
                     <div className="pt-10 mt-10 border-t-4 border-slate-50 flex flex-col sm:flex-row items-center justify-between gap-6">
                         <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest text-center sm:text-left">
