@@ -25,7 +25,7 @@ Educational institutions often struggle with managing specialized retail operati
 We have built a **Multi-Tenant SaaS Platform** that serves as a bridge between Schools, Suppliers, and Parents. 
 
 ### How we solve it:
-1. **Subdomain-Based Isolation:** Each school gets its own unique digital storefront (e.g., `greenwood.myschoolstore.in`) with independent branding (logos, colors, banners).
+1. **Subdomain-Based Isolation:** Each school gets its own unique digital storefront (e.g., `greenwood.schoolstore.in`) with independent branding (logos, colors, banners).
 2. **Unified Backend, Distributed Frontend:** A single Laravel instance handles multiple "Tenants" (Schools) using a sophisticated middleware layer that resolves the context based on the subdomain.
 3. **Automated Logistics Engine:** Integrated with major providers like **Shiprocket** and **Delhivery** to provide real-time shipping quotes, serviceability checks, and automated label generation.
 4. **Financial Transparency:** A built-in Wallet and Settlement system that automatically calculates school commissions and supplier payouts, ensuring clear financial reconciliation.
@@ -107,10 +107,10 @@ To test the multi-tenant resolution on your local machine:
 ### Method 1: Hostname Mapping (Recommended)
 Add entries to your `hosts` file (e.g., `C:\Windows\System32\drivers\etc\hosts`):
 ```text
-127.0.0.1 school-a.myschoolstore.in
-127.0.0.1 school-b.myschoolstore.in
+127.0.0.1 school-a.schoolstore.in
+127.0.0.1 school-b.schoolstore.in
 ```
-Then visit `http://school-a.myschoolstore.in:8000`.
+Then visit `http://school-a.schoolstore.in:8000`.
 
 ### Method 2: X-Test-Subdomain Header
 For Postman/Insomnia testing, you don't need host mapping. Simply add the following header:
