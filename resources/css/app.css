@@ -1,0 +1,194 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+@source '../**/*.jsx';
+
+@theme {
+    --font-sans: 'Outfit', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+
+    --color-brand-cyan: #00778a;
+    --color-brand-blue: #005a67;
+    /* Primary Logo Color */
+    --color-brand-purple: #00454f;
+    /* Darker variant */
+    --color-brand-pink: #008f9e;
+    /* Lighter variant */
+    --color-brand-red: #ea4335;
+    --color-brand-orange: #f29900;
+    --color-brand-yellow: #fbbc04;
+    --color-brand-green: #34a853;
+}
+
+@keyframes marquee {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+.animate-marquee {
+    display: inline-flex;
+    animation: marquee 30s linear infinite;
+    white-space: nowrap;
+}
+
+/* Glassmorphism Utilities */
+.glass {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+}
+
+.glass-dark {
+    background: rgba(24, 24, 27, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
+}
+
+
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 20px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: #94a3b8;
+}
+
+body {
+    background-color: #f8fafc;
+    color: #0f172a;
+    -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+    background-color: #00778a;
+    color: white;
+}
+
+/* React Quill Editor Overrides */
+.product-description-editor .ql-toolbar {
+    border: none;
+    border-bottom: 1px solid #e4e4e7;
+    background-color: #fcfcfd;
+    font-family: inherit;
+    border-top-left-radius: 0.75rem;
+    border-top-right-radius: 0.75rem;
+}
+
+.product-description-editor .ql-container {
+    border: none;
+    font-size: 0.875rem;
+    font-family: inherit;
+    font-weight: 500;
+    color: #18181b;
+}
+
+.product-description-editor .ql-editor {
+    min-height: 140px;
+    padding: 1rem 1.5rem;
+}
+
+
+/* --- Rich Text Styling for Product Descriptions --- */
+/* Using body selector + !important to override Tailwind v4 aggressive resets */
+body .product-description {
+    line-height: 1.7 !important;
+    font-size: 0.9375rem !important;
+    color: #334155 !important;
+    overflow-wrap: break-word;
+}
+
+body .product-description p {
+    margin-bottom: 1.5em !important;
+    display: block !important;
+}
+
+body .product-description ul, 
+body .product-description ul[style] {
+    list-style-type: disc !important;
+    list-style-position: outside !important;
+    padding-left: 2rem !important;
+    margin-bottom: 1.5em !important;
+    display: block !important;
+}
+
+body .product-description ol, 
+body .product-description ol[style] {
+    list-style-type: decimal !important;
+    list-style-position: outside !important;
+    padding-left: 2rem !important;
+    margin-bottom: 1.5em !important;
+    display: block !important;
+}
+
+body .product-description li {
+    margin-bottom: 0.75em !important;
+    display: list-item !important;
+}
+
+body .product-description strong, 
+body .product-description b {
+    font-weight: 800 !important;
+    color: #0f172a !important;
+}
+
+body .product-description em, 
+body .product-description i {
+    font-style: italic !important;
+}
+
+body .product-description h1 { font-size: 1.875rem !important; font-weight: 800 !important; margin: 1.5rem 0 1rem !important; color: #0f172a !important; }
+body .product-description h2 { font-size: 1.5rem !important; font-weight: 800 !important; margin: 1.5rem 0 1rem !important; color: #0f172a !important; }
+body .product-description h3 { font-size: 1.25rem !important; font-weight: 700 !important; margin: 1.25rem 0 0.75rem !important; color: #0f172a !important; }
+
+body .product-description img {
+    max-width: 100% !important;
+    height: auto !important;
+    border-radius: 1rem !important;
+    margin: 2rem 0 !important;
+    display: block !important;
+}
+
+body .product-description table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin: 1.5rem 0 !important;
+}
+
+body .product-description th, 
+body .product-description td {
+    border: 1px solid #e2e8f0 !important;
+    padding: 0.75rem !important;
+    text-align: left !important;
+}
