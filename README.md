@@ -1,10 +1,12 @@
-# School E-Commerce & Logistics Platform (Multi-Tenant)
+# School Ecommerce & Logistics Platform (Multi-Tenant)
 
 [![Laravel](https://img.shields.io/badge/Laravel-12.x-red.svg)](https://laravel.com)
 [![PHP](https://img.shields.io/badge/PHP-8.2+-blue.svg)](https://php.net)
+[![React](https://img.shields.io/badge/React-18.x-blue.svg)](https://reactjs.org)
+[![Tailwind](https://img.shields.io/badge/Tailwind-v4-38bdf8.svg)](https://tailwindcss.com)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-A high-performance, multi-tenant backend built with Laravel, designed to empower educational institutions with dedicated, branded digital marketplaces while streamlining the supply chain for uniforms, books, and stationery.
+A high-performance, multi-tenant backend built with Laravel and React, designed to empower educational institutions with dedicated, branded digital marketplaces while streamlining the supply chain for uniforms, books, and stationery.
 
 ---
 
@@ -23,7 +25,7 @@ Educational institutions often struggle with managing specialized retail operati
 We have built a **Multi-Tenant SaaS Platform** that serves as a bridge between Schools, Suppliers, and Parents. 
 
 ### How we solve it:
-1. **Subdomain-Based Isolation:** Each school gets its own unique digital storefront (e.g., `greenwood.schoolshop.com`) with independent branding (logos, colors, banners).
+1. **Subdomain-Based Isolation:** Each school gets its own unique digital storefront (e.g., `greenwood.myschoolstore.in`) with independent branding (logos, colors, banners).
 2. **Unified Backend, Distributed Frontend:** A single Laravel instance handles multiple "Tenants" (Schools) using a sophisticated middleware layer that resolves the context based on the subdomain.
 3. **Automated Logistics Engine:** Integrated with major providers like **Shiprocket** and **Delhivery** to provide real-time shipping quotes, serviceability checks, and automated label generation.
 4. **Financial Transparency:** A built-in Wallet and Settlement system that automatically calculates school commissions and supplier payouts, ensuring clear financial reconciliation.
@@ -57,11 +59,12 @@ We have built a **Multi-Tenant SaaS Platform** that serves as a bridge between S
 
 ## 🛠️ Technical Stack
 
-- **Core:** Laravel 12.x
+- **Backend:** Laravel 12.x
+- **Frontend:** React 18.x with Vite & Tailwind CSS v4
 - **Authentication:** Laravel Sanctum (SPA & API Auth)
 - **Permissions:** Spatie Laravel Permission
-- **Database:** PostgreSQL/MySQL (Tenant-ID based isolation)
-- **APIs:** Integrated with Shiprocket (Logistics), Delhivery, and Spreadsheet exports.
+- **Database:** MySQL (Tenant-ID based isolation)
+- **APIs:** Integrated with Shiprocket (Logistics), Delhivery, and Cashfree (Payments).
 
 ---
 
@@ -69,13 +72,14 @@ We have built a **Multi-Tenant SaaS Platform** that serves as a bridge between S
 
 1. **Clone the Project:**
    ```bash
-   git clone https://github.com/your-repo/school-be.git
-   cd school-be
+   git clone https://github.com/muhammad-x12/Hackathon-Nit-2026.git
+   cd Hackathon-Nit-2026
    ```
 
 2. **Dependencies:**
    ```bash
    composer install
+   npm install
    ```
 
 3. **Environment Config:**
@@ -89,9 +93,9 @@ We have built a **Multi-Tenant SaaS Platform** that serves as a bridge between S
    php artisan migrate --seed
    ```
 
-5. **Start Server:**
+5. **Start Development Server:**
    ```bash
-   php artisan serve
+   npm run dev
    ```
 
 ---
@@ -103,10 +107,10 @@ To test the multi-tenant resolution on your local machine:
 ### Method 1: Hostname Mapping (Recommended)
 Add entries to your `hosts` file (e.g., `C:\Windows\System32\drivers\etc\hosts`):
 ```text
-127.0.0.1 school-a.localhost
-127.0.0.1 school-b.localhost
+127.0.0.1 school-a.myschoolstore.in
+127.0.0.1 school-b.myschoolstore.in
 ```
-Then visit `http://school-a.localhost:8000/api/school/info`.
+Then visit `http://school-a.myschoolstore.in:8000`.
 
 ### Method 2: X-Test-Subdomain Header
 For Postman/Insomnia testing, you don't need host mapping. Simply add the following header:
