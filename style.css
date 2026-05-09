@@ -1,0 +1,194 @@
+/* DASHBOARD PROFESSIONAL UI */
+
+.dashboard-layout{
+    display:flex;
+    min-height:100vh;
+    background:#020b24;
+    color:white;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+    width:260px;
+    background:#020617;
+    padding:30px 20px;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    border-right:1px solid rgba(255,255,255,0.1);
+}
+
+.logo{
+    font-size:35px;
+    margin-bottom:40px;
+}
+
+.sidebar ul{
+    list-style:none;
+}
+
+.sidebar li{
+    margin:25px 0;
+}
+
+.sidebar a{
+    color:white;
+    text-decoration:none;
+    font-size:18px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:12px;
+    border-radius:12px;
+    transition:0.3s;
+}
+
+.sidebar a:hover{
+    background:#3b82f6;
+}
+
+.logout-btn{
+    background:#1e293b;
+}
+
+/* MAIN CONTENT */
+
+.main-content{
+    flex:1;
+    padding:40px;
+}
+
+/* TOPBAR */
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:40px;
+    flex-wrap:wrap;
+    gap:20px;
+}
+
+.topbar h1{
+    font-size:45px;
+}
+
+.topbar p{
+    color:#94a3b8;
+    margin-top:8px;
+}
+
+/* SEARCH */
+
+.search-box input{
+    padding:15px 20px;
+    width:300px;
+    border:none;
+    outline:none;
+    border-radius:12px;
+    background:#1e293b;
+    color:white;
+    font-size:16px;
+}
+
+/* CARDS */
+
+.dashboard-cards{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(250px, 1fr));
+    gap:25px;
+}
+
+.dash-card{
+    background:#1e293b;
+    padding:30px;
+    border-radius:22px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    transition:0.3s;
+}
+
+.dash-card:hover{
+    transform:translateY(-10px);
+    box-shadow:0 0 25px rgba(59,130,246,0.5);
+}
+
+.dash-card h3{
+    margin-bottom:15px;
+    font-size:25px;
+}
+
+.dash-card p{
+    font-size:38px;
+    color:#3b82f6;
+    font-weight:bold;
+}
+
+.card-icon{
+    font-size:45px;
+    color:#3b82f6;
+}
+
+/* ACTIVITY SECTION */
+
+.activity-section{
+    margin-top:50px;
+    background:#1e293b;
+    padding:30px;
+    border-radius:22px;
+}
+
+.activity-section h2{
+    margin-bottom:25px;
+    font-size:32px;
+}
+
+/* TABLE */
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+table th,
+table td{
+    padding:18px;
+    text-align:left;
+}
+
+table th{
+    background:#334155;
+}
+
+table tr{
+    border-bottom:1px solid rgba(255,255,255,0.1);
+}
+
+table tr:hover{
+    background:#334155;
+}
+
+/* MOBILE */
+
+@media(max-width:900px){
+
+    .dashboard-layout{
+        flex-direction:column;
+    }
+
+    .sidebar{
+        width:100%;
+    }
+
+    .topbar{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+
+    .search-box input{
+        width:100%;
+    }
+
+}

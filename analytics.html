@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BizFlow — Analytics</title>
+  <link rel="stylesheet" href="shared.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    .period-tabs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 4px; }
+    .period-tab { padding: 7px 16px; border-radius: 7px; font-size: 13px; font-weight: 500; border: none; background: transparent; color: var(--muted); cursor: pointer; transition: all 0.15s; }
+    .period-tab.active { background: var(--accent); color: white; }
+
+    .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+    .charts-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+    .col-span-2 { grid-column: span 2; }
+
+    .chart-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 16px; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+    /* KPI GROWTH */
+    .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 14px; margin-bottom: 20px; }
+    .kpi-item {
+      background: var(--bg3); border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px;
+    }
+    .kpi-item .kpi-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 10px; }
+    .kpi-item .kpi-val { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; letter-spacing: -1px; margin-bottom: 6px; }
+    .kpi-item .kpi-change { font-size: 12px; display: flex; align-items: center; gap: 4px; }
+    .kpi-item .kpi-change.up { color: var(--green); }
+    .kpi-item .kpi-change.down { color: var(--red); }
+
+    /* TOP PRODUCTS TABLE */
+    .rank-num {
+      width: 28px; height: 28px; border-radius: 8px;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700;
+    }
+    .rank-1 { background: rgba(245,158,11,0.15); color: var(--amber); }
+    .rank-2 { background: rgba(148,163,184,0.1); color: #94a3b8; }
+    .rank-3 { background: rgba(205,127,50,0.1);  color: #cd7f32; }
+    .rank-n { background: var(--surface); color: var(--muted); }
+
+    @media (max-width: 900px) {
+      .charts-grid, .charts-grid-3 { grid-template-columns: 1fr; }
+      .col-span-2 { grid-column: span 1; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <a href="index.html" class="logo">BizFlow</a>
+  <p class="nav-section-label">Main Menu</p>
+  <ul class="sidebar-nav">
+    <li><a href="dashboard.html"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+    <li><a href="employees.html"><i class="fa-solid fa-users"></i> Employees</a></li>
+    <li><a href="inventory.html"><i class="fa-solid fa-box"></i> Inventory</a></li>
+    <li><a href="analytics.html" class="active"><i class="fa-solid fa-chart-pie"></i> Analytics</a></li>
+    <li><a href="#"><i class="fa-solid fa-file-invoice-dollar"></i> Finance</a></li>
+  </ul>
+  <p class="nav-section-label" style="margin-top:20px">System</p>
+  <ul class="sidebar-nav">
+    <li><a href="#"><i class="fa-solid fa-gear"></i> Settings</a></li>
+    <li><a href="#"><i class="fa-solid fa-circle-question"></i> Help</a></li>
+  </ul>
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-footer">
+    <div class="user-card">
+      <div class="avatar">AD</div>
+      <div class="user-info"><div class="name">Admin User</div><div class="role">Super Admin</div></div>
+    </div>
+    <button class="btn-logout" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar fade-up">
+    <div class="topbar-left">
+      <h1>Analytics</h1>
+      <p>Business performance overview — updated in real time</p>
+    </div>
+    <div class="topbar-right">
+      <div class="period-tabs">
+        <button class="period-tab active" onclick="setPeriod('6m',this)">6 Months</button>
+        <button class="period-tab" onclick="setPeriod('1y',this)">1 Year</button>
+        <button class="period-tab" onclick="setPeriod('ytd',this)">YTD</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI CARDS -->
+  <div class="kpi-row fade-up" style="animation-delay:0.05s">
+    <div class="kpi-item">
+      <div class="kpi-label">Total Revenue</div>
+      <div class="kpi-val">$45K</div>
+      <div class="kpi-change up"><i class="fa-solid fa-arrow-trend-up"></i> +12.5% vs last period</div>
+    </div>
+    <div class="kpi-item">
+      <div class="kpi-label">Net Profit</div>
+      <div class="kpi-val">$18.2K</div>
+      <div class="kpi-change up"><i class="fa-solid fa-arrow-trend-up"></i> +8.3% vs last period</div>
+    </div>
+    <div class="kpi-item">
+      <div class="kpi-label">Total Orders</div>
+      <div class="kpi-val">410</div>
+      <div class="kpi-change up"><i class="fa-solid fa-arrow-trend-up"></i> +22 this month</div>
+    </div>
+    <div class="kpi-item">
+      <div class="kpi-label">Avg Order Value</div>
+      <div class="kpi-val">$109</div>
+      <div class="kpi-change down"><i class="fa-solid fa-arrow-trend-down"></i> -2.1% vs last period</div>
+    </div>
+    <div class="kpi-item">
+      <div class="kpi-label">Customer Retention</div>
+      <div class="kpi-val">78%</div>
+      <div class="kpi-change up"><i class="fa-solid fa-arrow-trend-up"></i> +4% improvement</div>
+    </div>
+    <div class="kpi-item">
+      <div class="kpi-label">New Customers</div>
+      <div class="kpi-val">63</div>
+      <div class="kpi-change up"><i class="fa-solid fa-arrow-trend-up"></i> +15 this month</div>
+    </div>
+  </div>
+
+  <!-- CHARTS ROW 1 -->
+  <div class="charts-grid fade-up" style="animation-delay:0.1s">
+    <!-- Revenue & Profit Line -->
+    <div class="panel col-span-2">
+      <div class="panel-header">
+        <span class="panel-title">Revenue vs Profit</span>
+        <span class="panel-badge" id="periodLabel">Last 6 Months</span>
+      </div>
+      <canvas id="revenueChart" height="110"></canvas>
+      <div class="chart-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div>Revenue</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#10b981"></div>Net Profit</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="charts-grid fade-up" style="animation-delay:0.15s">
+    <!-- Sales by Category Donut -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Sales by Category</span>
+      </div>
+      <div style="position:relative;width:200px;height:200px;margin:0 auto 20px">
+        <canvas id="catChart"></canvas>
+        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+          <span style="font-family:'Syne',sans-serif;font-size:24px;font-weight:800">$45K</span>
+          <span style="font-size:11px;color:var(--muted)">Total</span>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px">
+          <div style="display:flex;align-items:center;gap:8px"><div class="legend-dot" style="background:#3b82f6;width:10px;height:10px"></div>Electronics</div>
+          <span style="font-weight:600">$18,200 <span style="color:var(--muted);font-weight:400">40%</span></span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px">
+          <div style="display:flex;align-items:center;gap:8px"><div class="legend-dot" style="background:#10b981;width:10px;height:10px"></div>Software</div>
+          <span style="font-weight:600">$11,250 <span style="color:var(--muted);font-weight:400">25%</span></span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px">
+          <div style="display:flex;align-items:center;gap:8px"><div class="legend-dot" style="background:#f59e0b;width:10px;height:10px"></div>Hardware</div>
+          <span style="font-weight:600">$9,000 <span style="color:var(--muted);font-weight:400">20%</span></span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px">
+          <div style="display:flex;align-items:center;gap:8px"><div class="legend-dot" style="background:#a78bfa;width:10px;height:10px"></div>Furniture</div>
+          <span style="font-weight:600">$4,500 <span style="color:var(--muted);font-weight:400">10%</span></span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px">
+          <div style="display:flex;align-items:center;gap:8px"><div class="legend-dot" style="background:#f472b6;width:10px;height:10px"></div>Supplies</div>
+          <span style="font-weight:600">$2,050 <span style="color:var(--muted);font-weight:400">5%</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Monthly Growth Bar -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Monthly Growth</span>
+      </div>
+      <canvas id="growthChart" height="240"></canvas>
+    </div>
+  </div>
+
+  <!-- ORDERS + TOP PRODUCTS -->
+  <div class="charts-grid fade-up" style="animation-delay:0.2s">
+    <!-- Orders Bar -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Orders per Month</span>
+      </div>
+      <canvas id="ordersChart" height="220"></canvas>
+    </div>
+
+    <!-- Top Products -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Top Products by Revenue</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Product</th><th>Units</th><th>Revenue</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><span class="rank-num rank-1">1</span></td>
+              <td>MacBook Pro 14"</td><td>24</td>
+              <td style="color:var(--accent2);font-weight:600">$45,576</td>
+            </tr>
+            <tr>
+              <td><span class="rank-num rank-2">2</span></td>
+              <td>Dell UltraSharp 27"</td><td>38</td>
+              <td style="color:var(--accent2);font-weight:600">$20,862</td>
+            </tr>
+            <tr>
+              <td><span class="rank-num rank-3">3</span></td>
+              <td>Standing Desk</td><td>41</td>
+              <td style="color:var(--accent2);font-weight:600">$20,459</td>
+            </tr>
+            <tr>
+              <td><span class="rank-num rank-n">4</span></td>
+              <td>Office Chair Pro</td><td>52</td>
+              <td style="color:var(--accent2);font-weight:600">$18,148</td>
+            </tr>
+            <tr>
+              <td><span class="rank-num rank-n">5</span></td>
+              <td>Mechanical Keyboard</td><td>87</td>
+              <td style="color:var(--accent2);font-weight:600">$11,223</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  if (localStorage.getItem('loggedIn') !== 'true') window.location.href = 'login.html';
+  function logout() { localStorage.removeItem('loggedIn'); window.location.href = 'index.html'; }
+
+  const TOOLTIP_OPTS = {
+    backgroundColor: '#0f1d2e',
+    borderColor: 'rgba(255,255,255,0.1)',
+    borderWidth: 1,
+    titleColor: '#94a3b8',
+    bodyColor: '#fff',
+    padding: 12,
+  };
+
+  const TICK_OPTS = { color: '#64748b', font: { family: 'DM Sans', size: 12 } };
+  const GRID_OPTS = { color: 'rgba(255,255,255,0.05)' };
+
+  // DATA
+  const DATA = {
+    '6m': {
+      labels: ['Nov','Dec','Jan','Feb','Mar','Apr'],
+      revenue: [28000,32000,35000,30000,40000,45000],
+      profit:  [10000,12500,14000,11000,16000,18200],
+      orders:  [52,  65,   70,   60,   80,   83],
+      growth:  [4.2, 8.1,  6.3,  -2.1, 9.5,  12.5],
+    },
+    '1y': {
+      labels: ['May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr'],
+      revenue: [18000,22000,20000,25000,23000,27000,28000,32000,35000,30000,40000,45000],
+      profit:  [6500, 8800, 7600, 9500, 8800,10500,10000,12500,14000,11000,16000,18200],
+      orders:  [35,   44,   40,   50,   46,   54,   52,   65,   70,   60,   80,   83],
+      growth:  [2.1,  3.5,  1.2,  4.8,  3.1,  5.6,  4.2,  8.1,  6.3, -2.1,  9.5, 12.5],
+    },
+    'ytd': {
+      labels: ['Jan','Feb','Mar','Apr'],
+      revenue: [35000,30000,40000,45000],
+      profit:  [14000,11000,16000,18200],
+      orders:  [70,   60,   80,   83],
+      growth:  [6.3, -2.1,  9.5,  12.5],
+    },
+  };
+
+  let period = '6m';
+  let revChart, growthChart, ordersChart;
+
+  function setPeriod(p, el) {
+    period = p;
+    document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    const labels = { '6m':'Last 6 Months', '1y':'Last 12 Months', 'ytd':'Year to Date' };
+    document.getElementById('periodLabel').textContent = labels[p];
+    updateCharts();
+  }
+
+  function makeGradient(ctx, color, h) {
+    const g = ctx.createLinearGradient(0,0,0,h);
+    g.addColorStop(0, color.replace(')',',0.25)').replace('rgb','rgba'));
+    g.addColorStop(1, color.replace(')',',0)').replace('rgb','rgba'));
+    return g;
+  }
+
+  function updateCharts() {
+    const d = DATA[period];
+
+    // Revenue & Profit
+    const rCtx = document.getElementById('revenueChart');
+    const rg1 = rCtx.getContext('2d').createLinearGradient(0,0,0,300);
+    rg1.addColorStop(0,'rgba(59,130,246,0.2)'); rg1.addColorStop(1,'rgba(59,130,246,0)');
+    const rg2 = rCtx.getContext('2d').createLinearGradient(0,0,0,300);
+    rg2.addColorStop(0,'rgba(16,185,129,0.15)'); rg2.addColorStop(1,'rgba(16,185,129,0)');
+
+    if (revChart) revChart.destroy();
+    revChart = new Chart(rCtx, {
+      type: 'line',
+      data: {
+        labels: d.labels,
+        datasets: [
+          { label:'Revenue', data: d.revenue, borderColor:'#3b82f6', backgroundColor: rg1, borderWidth:2.5, fill:true, tension:0.4, pointRadius:4, pointBackgroundColor:'#3b82f6' },
+          { label:'Profit',  data: d.profit,  borderColor:'#10b981', backgroundColor: rg2, borderWidth:2.5, fill:true, tension:0.4, pointRadius:4, pointBackgroundColor:'#10b981' },
+        ]
+      },
+      options: {
+        responsive:true,
+        interaction: { mode:'index', intersect:false },
+        plugins: { legend:{display:false}, tooltip:{ ...TOOLTIP_OPTS, callbacks:{ label: ctx => ` $${ctx.raw.toLocaleString()}` }}},
+        scales: {
+          x: { grid: GRID_OPTS, ticks: TICK_OPTS },
+          y: { grid: GRID_OPTS, ticks: { ...TICK_OPTS, callback: v => '$'+(v/1000)+'k' }}
+        }
+      }
+    });
+
+    // Growth Bar
+    const gCtx = document.getElementById('growthChart');
+    if (growthChart) growthChart.destroy();
+    growthChart = new Chart(gCtx, {
+      type: 'bar',
+      data: {
+        labels: d.labels,
+        datasets: [{
+          label: 'Growth %',
+          data: d.growth,
+          backgroundColor: d.growth.map(v => v >= 0 ? 'rgba(16,185,129,0.7)' : 'rgba(239,68,68,0.7)'),
+          borderRadius: 6,
+          borderSkipped: false,
+        }]
+      },
+      options: {
+        responsive:true,
+        plugins: { legend:{display:false}, tooltip:{ ...TOOLTIP_OPTS, callbacks:{ label: ctx => ` ${ctx.raw > 0 ? '+':''}${ctx.raw}%` }}},
+        scales: {
+          x: { grid: GRID_OPTS, ticks: TICK_OPTS },
+          y: { grid: GRID_OPTS, ticks: { ...TICK_OPTS, callback: v => v+'%' }}
+        }
+      }
+    });
+
+    // Orders Bar
+    const oCtx = document.getElementById('ordersChart');
+    if (ordersChart) ordersChart.destroy();
+    ordersChart = new Chart(oCtx, {
+      type: 'bar',
+      data: {
+        labels: d.labels,
+        datasets: [{
+          label: 'Orders',
+          data: d.orders,
+          backgroundColor: 'rgba(59,130,246,0.5)',
+          hoverBackgroundColor: 'rgba(59,130,246,0.8)',
+          borderRadius: 6,
+          borderSkipped: false,
+        }]
+      },
+      options: {
+        responsive:true,
+        plugins: { legend:{display:false}, tooltip: TOOLTIP_OPTS },
+        scales: {
+          x: { grid: GRID_OPTS, ticks: TICK_OPTS },
+          y: { grid: GRID_OPTS, ticks: TICK_OPTS }
+        }
+      }
+    });
+  }
+
+  // Category Donut (static)
+  new Chart(document.getElementById('catChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Electronics','Software','Hardware','Furniture','Supplies'],
+      datasets: [{ data:[40,25,20,10,5], backgroundColor:['#3b82f6','#10b981','#f59e0b','#a78bfa','#f472b6'], borderWidth:0, hoverOffset:6 }]
+    },
+    options: {
+      cutout: '72%',
+      plugins: { legend:{display:false}, tooltip:{ ...TOOLTIP_OPTS, callbacks:{ label: ctx => ` ${ctx.label}: ${ctx.raw}%` }}}
+    }
+  });
+
+  updateCharts();
+</script>
+</body>
+</html>

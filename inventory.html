@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BizFlow — Inventory</title>
+  <link rel="stylesheet" href="shared.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    /* ALERT BANNER */
+    .alert-banner {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 20px; border-radius: 12px; margin-bottom: 24px;
+      background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25);
+      color: var(--amber); font-size: 14px;
+    }
+    .alert-banner i { font-size: 18px; }
+
+    /* FILTER TABS */
+    .filter-tabs { display: flex; gap: 6px; margin-bottom: 24px; flex-wrap: wrap; }
+    .filter-tab {
+      padding: 7px 16px; border-radius: 100px; font-size: 13px; font-weight: 500;
+      background: var(--surface); border: 1px solid var(--border); color: var(--muted);
+      cursor: pointer; transition: all 0.15s;
+    }
+    .filter-tab.active { background: rgba(59,130,246,0.12); border-color: rgba(59,130,246,0.3); color: var(--accent2); }
+
+    /* STOCK BAR */
+    .stock-bar-wrap { width: 100%; min-width: 100px; }
+    .stock-bar {
+      height: 5px; border-radius: 100px;
+      background: rgba(255,255,255,0.08); overflow: hidden;
+    }
+    .stock-fill { height: 100%; border-radius: 100px; transition: width 0.3s; }
+    .stock-label { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+    /* PRODUCT CARD (grid) */
+    .inv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px,1fr)); gap: 18px; }
+    .inv-card {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 18px; padding: 22px; transition: all 0.2s; position: relative;
+    }
+    .inv-card:hover { border-color: rgba(59,130,246,0.3); transform: translateY(-3px); }
+    .inv-card .card-actions {
+      position: absolute; top: 14px; right: 14px;
+      display: flex; gap: 6px; opacity: 0; transition: opacity 0.2s;
+    }
+    .inv-card:hover .card-actions { opacity: 1; }
+    .action-btn {
+      width: 30px; height: 30px; border-radius: 8px; border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; font-size: 13px;
+      transition: all 0.15s;
+    }
+    .action-edit { background: rgba(59,130,246,0.1); color: var(--accent2); }
+    .action-edit:hover { background: rgba(59,130,246,0.25); }
+    .action-del  { background: rgba(239,68,68,0.1);  color: var(--red); }
+    .action-del:hover  { background: rgba(239,68,68,0.25); }
+
+    .inv-icon {
+      width: 52px; height: 52px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; margin-bottom: 14px;
+    }
+    .inv-card h3 { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+    .inv-card .cat { font-size: 12px; color: var(--muted); margin-bottom: 14px; }
+    .inv-price { font-size: 22px; font-weight: 700; color: var(--accent2); margin-bottom: 14px; }
+    .inv-price span { font-size: 13px; color: var(--muted); font-weight: 400; }
+
+    .low-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.25);
+      color: var(--amber); font-size: 11px; padding: 3px 10px; border-radius: 100px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <a href="index.html" class="logo">BizFlow</a>
+  <p class="nav-section-label">Main Menu</p>
+  <ul class="sidebar-nav">
+    <li><a href="dashboard.html"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+    <li><a href="employees.html"><i class="fa-solid fa-users"></i> Employees</a></li>
+    <li><a href="inventory.html" class="active"><i class="fa-solid fa-box"></i> Inventory</a></li>
+    <li><a href="analytics.html"><i class="fa-solid fa-chart-pie"></i> Analytics</a></li>
+    <li><a href="#"><i class="fa-solid fa-file-invoice-dollar"></i> Finance</a></li>
+  </ul>
+  <p class="nav-section-label" style="margin-top:20px">System</p>
+  <ul class="sidebar-nav">
+    <li><a href="#"><i class="fa-solid fa-gear"></i> Settings</a></li>
+    <li><a href="#"><i class="fa-solid fa-circle-question"></i> Help</a></li>
+  </ul>
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-footer">
+    <div class="user-card">
+      <div class="avatar">AD</div>
+      <div class="user-info"><div class="name">Admin User</div><div class="role">Super Admin</div></div>
+    </div>
+    <button class="btn-logout" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar fade-up">
+    <div class="topbar-left">
+      <h1>Inventory</h1>
+      <p id="invCount">Loading products...</p>
+    </div>
+    <div class="topbar-right">
+      <div class="search-wrap">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="searchInput" placeholder="Search products..." oninput="renderAll()">
+      </div>
+      <button class="btn btn-primary" onclick="openModal()">
+        <i class="fa-solid fa-plus"></i> Add Product
+      </button>
+    </div>
+  </div>
+
+  <!-- LOW STOCK ALERT -->
+  <div class="alert-banner fade-up" id="lowStockBanner" style="display:none">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    <span id="lowStockMsg"></span>
+  </div>
+
+  <!-- METRIC CARDS -->
+  <div class="cards-grid fade-up" style="animation-delay:0.05s">
+    <div class="metric-card">
+      <div class="card-header"><span class="card-label">Total Products</span><div class="card-icon-wrap icon-blue"><i class="fa-solid fa-boxes-stacked"></i></div></div>
+      <div class="card-value" id="totalProd">0</div>
+      <div class="card-change up"><i class="fa-solid fa-arrow-trend-up"></i> In catalog</div>
+    </div>
+    <div class="metric-card">
+      <div class="card-header"><span class="card-label">Total Stock</span><div class="card-icon-wrap icon-green"><i class="fa-solid fa-warehouse"></i></div></div>
+      <div class="card-value" id="totalStock">0</div>
+      <div class="card-change up"><i class="fa-solid fa-check"></i> Units available</div>
+    </div>
+    <div class="metric-card">
+      <div class="card-header"><span class="card-label">Low Stock Items</span><div class="card-icon-wrap icon-amber"><i class="fa-solid fa-triangle-exclamation"></i></div></div>
+      <div class="card-value" id="lowStockCount">0</div>
+      <div class="card-change down" id="lowStockChange"><i class="fa-solid fa-arrow-trend-down"></i> Need reorder</div>
+    </div>
+    <div class="metric-card">
+      <div class="card-header"><span class="card-label">Inventory Value</span><div class="card-icon-wrap icon-purple"><i class="fa-solid fa-dollar-sign"></i></div></div>
+      <div class="card-value" id="invValue">$0</div>
+      <div class="card-change up"><i class="fa-solid fa-arrow-trend-up"></i> Total worth</div>
+    </div>
+  </div>
+
+  <!-- FILTER TABS -->
+  <div class="filter-tabs" id="filterTabs">
+    <div class="filter-tab active" onclick="setFilter('All',this)">All</div>
+    <div class="filter-tab" onclick="setFilter('Electronics',this)">Electronics</div>
+    <div class="filter-tab" onclick="setFilter('Office Supplies',this)">Office Supplies</div>
+    <div class="filter-tab" onclick="setFilter('Furniture',this)">Furniture</div>
+    <div class="filter-tab" onclick="setFilter('Software',this)">Software</div>
+    <div class="filter-tab" onclick="setFilter('Hardware',this)">Hardware</div>
+    <div class="filter-tab" onclick="setFilter('low',this)">⚠ Low Stock</div>
+  </div>
+
+  <!-- GRID -->
+  <div id="invGrid" class="inv-grid fade-up" style="animation-delay:0.1s"></div>
+
+  <!-- TABLE -->
+  <div id="invTable" class="panel fade-up" style="animation-delay:0.1s; display:none">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="invTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="invModal">
+  <div class="modal">
+    <h3 id="modalTitle">Add Product</h3>
+    <div class="form-group"><label>Product Name</label><input id="f_name" type="text" placeholder="MacBook Pro 14"></div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Category</label>
+        <select id="f_cat">
+          <option>Electronics</option>
+          <option>Office Supplies</option>
+          <option>Furniture</option>
+          <option>Software</option>
+          <option>Hardware</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Price ($)</label><input id="f_price" type="number" min="0" step="0.01" placeholder="1299.00"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Current Stock</label><input id="f_stock" type="number" min="0" placeholder="50"></div>
+      <div class="form-group"><label>Low Stock Threshold</label><input id="f_threshold" type="number" min="0" placeholder="10"></div>
+    </div>
+    <div class="form-group"><label>Description (optional)</label><textarea id="f_desc" rows="2" placeholder="Brief product description..."></textarea></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveProduct()"><i class="fa-solid fa-check"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  if (localStorage.getItem('loggedIn') !== 'true') window.location.href = 'login.html';
+  function logout() { localStorage.removeItem('loggedIn'); window.location.href = 'index.html'; }
+
+  const CAT_ICONS = {
+    'Electronics':    { icon: 'fa-laptop',         color: '#3b82f6', bg: 'rgba(59,130,246,0.12)' },
+    'Office Supplies':{ icon: 'fa-pen-ruler',       color: '#10b981', bg: 'rgba(16,185,129,0.12)' },
+    'Furniture':      { icon: 'fa-couch',           color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
+    'Software':       { icon: 'fa-code',            color: '#a78bfa', bg: 'rgba(167,139,250,0.12)' },
+    'Hardware':       { icon: 'fa-microchip',       color: '#f472b6', bg: 'rgba(244,114,182,0.12)' },
+  };
+
+  let products = JSON.parse(localStorage.getItem('biz_products') || 'null') || [
+    { id:1, name:'MacBook Pro 14"',    cat:'Electronics',    price:1899, stock:12, threshold:5,  desc:'' },
+    { id:2, name:'Dell UltraSharp 27"',cat:'Electronics',    price:549,  stock:3,  threshold:5,  desc:'' },
+    { id:3, name:'Office Chair Pro',   cat:'Furniture',      price:349,  stock:18, threshold:4,  desc:'' },
+    { id:4, name:'Standing Desk',      cat:'Furniture',      price:499,  stock:7,  threshold:3,  desc:'' },
+    { id:5, name:'VS Code Pro License',cat:'Software',       price:49,   stock:50, threshold:10, desc:'' },
+    { id:6, name:'A4 Paper Ream',      cat:'Office Supplies',price:8,    stock:2,  threshold:20, desc:'' },
+    { id:7, name:'Wireless Mouse',     cat:'Hardware',       price:59,   stock:25, threshold:8,  desc:'' },
+    { id:8, name:'USB-C Hub',          cat:'Hardware',       price:79,   stock:4,  threshold:6,  desc:'' },
+    { id:9, name:'Mechanical Keyboard',cat:'Hardware',       price:129,  stock:15, threshold:5,  desc:'' },
+    { id:10,name:'Whiteboard Markers', cat:'Office Supplies',price:12,   stock:1,  threshold:10, desc:'' },
+  ];
+
+  function save() { localStorage.setItem('biz_products', JSON.stringify(products)); }
+
+  let filterVal = 'All', editId = null;
+
+  function setFilter(val, el) {
+    filterVal = val;
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    renderAll();
+  }
+
+  function filtered() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    return products.filter(p => {
+      const matchQ = !q || p.name.toLowerCase().includes(q) || p.cat.toLowerCase().includes(q);
+      const matchF = filterVal === 'All' || (filterVal === 'low' ? p.stock <= p.threshold : p.cat === filterVal);
+      return matchQ && matchF;
+    });
+  }
+
+  function stockPct(p) { return Math.min(100, Math.round((p.stock / Math.max(p.threshold * 4, 1)) * 100)); }
+
+  function stockColor(p) {
+    if (p.stock <= p.threshold) return '#ef4444';
+    if (p.stock <= p.threshold * 2) return '#f59e0b';
+    return '#10b981';
+  }
+
+  function renderAll() {
+    const list = filtered();
+    updateStats();
+    renderGrid(list);
+  }
+
+  function updateStats() {
+    const low = products.filter(p => p.stock <= p.threshold);
+    document.getElementById('totalProd').textContent  = products.length;
+    document.getElementById('totalStock').textContent = products.reduce((a,p) => a+p.stock, 0).toLocaleString();
+    document.getElementById('lowStockCount').textContent = low.length;
+    const val = products.reduce((a,p) => a + p.price * p.stock, 0);
+    document.getElementById('invValue').textContent   = '$' + val.toLocaleString();
+    document.getElementById('invCount').textContent   = `${products.length} products, ${products.reduce((a,p)=>a+p.stock,0).toLocaleString()} units in stock`;
+
+    if (low.length) {
+      document.getElementById('lowStockBanner').style.display = 'flex';
+      document.getElementById('lowStockMsg').textContent = `${low.length} item${low.length>1?'s':''} running low on stock: ${low.map(p=>p.name).join(', ')}. Consider reordering soon.`;
+    } else {
+      document.getElementById('lowStockBanner').style.display = 'none';
+    }
+  }
+
+  function renderGrid(list) {
+    const el = document.getElementById('invGrid');
+    if (!list.length) {
+      el.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--muted)"><i class="fa-solid fa-box-open" style="font-size:48px;display:block;margin-bottom:16px;color:#1e3a5f"></i><p>No products found.</p></div>`;
+      return;
+    }
+    el.innerHTML = list.map(p => {
+      const ci = CAT_ICONS[p.cat] || CAT_ICONS['Electronics'];
+      const pct = stockPct(p);
+      const col = stockColor(p);
+      const isLow = p.stock <= p.threshold;
+      return `
+      <div class="inv-card">
+        <div class="card-actions">
+          <button class="action-btn action-edit" onclick="openModal(${p.id})"><i class="fa-solid fa-pen"></i></button>
+          <button class="action-btn action-del"  onclick="deleteProd(${p.id})"><i class="fa-solid fa-trash"></i></button>
+        </div>
+        <div class="inv-icon" style="background:${ci.bg};color:${ci.color}"><i class="fa-solid ${ci.icon}"></i></div>
+        <h3>${p.name}</h3>
+        <div class="cat">${p.cat}</div>
+        <div class="inv-price">$${p.price.toLocaleString()} <span>per unit</span></div>
+        <div class="stock-bar-wrap">
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+            <span style="font-size:12px;color:var(--muted)">Stock</span>
+            <span style="font-size:12px;font-weight:600;color:${col}">${p.stock} units</span>
+          </div>
+          <div class="stock-bar"><div class="stock-fill" style="width:${pct}%;background:${col}"></div></div>
+          <div class="stock-label">Threshold: ${p.threshold} units</div>
+        </div>
+        ${isLow ? `<div class="low-tag"><i class="fa-solid fa-triangle-exclamation"></i> Low Stock — Reorder needed</div>` : ''}
+      </div>`;
+    }).join('');
+  }
+
+  function openModal(id = null) {
+    editId = id;
+    document.getElementById('modalTitle').textContent = id ? 'Edit Product' : 'Add Product';
+    if (id) {
+      const p = products.find(x => x.id === id);
+      document.getElementById('f_name').value      = p.name;
+      document.getElementById('f_cat').value       = p.cat;
+      document.getElementById('f_price').value     = p.price;
+      document.getElementById('f_stock').value     = p.stock;
+      document.getElementById('f_threshold').value = p.threshold;
+      document.getElementById('f_desc').value      = p.desc;
+    } else {
+      ['f_name','f_price','f_stock','f_threshold','f_desc'].forEach(i => document.getElementById(i).value = '');
+      document.getElementById('f_cat').value = 'Electronics';
+    }
+    document.getElementById('invModal').classList.add('open');
+  }
+
+  function closeModal() { document.getElementById('invModal').classList.remove('open'); }
+
+  function saveProduct() {
+    const name      = document.getElementById('f_name').value.trim();
+    const cat       = document.getElementById('f_cat').value;
+    const price     = parseFloat(document.getElementById('f_price').value) || 0;
+    const stock     = parseInt(document.getElementById('f_stock').value) || 0;
+    const threshold = parseInt(document.getElementById('f_threshold').value) || 5;
+    const desc      = document.getElementById('f_desc').value.trim();
+    if (!name) { alert('Product name is required.'); return; }
+    if (editId) {
+      const idx = products.findIndex(p => p.id === editId);
+      products[idx] = { ...products[idx], name, cat, price, stock, threshold, desc };
+    } else {
+      const newId = products.length ? Math.max(...products.map(p => p.id)) + 1 : 1;
+      products.push({ id: newId, name, cat, price, stock, threshold, desc });
+    }
+    save(); closeModal(); renderAll();
+  }
+
+  function deleteProd(id) {
+    if (!confirm('Remove this product from inventory?')) return;
+    products = products.filter(p => p.id !== id);
+    save(); renderAll();
+  }
+
+  document.getElementById('invModal').addEventListener('click', e => { if (e.target.id === 'invModal') closeModal(); });
+
+  renderAll();
+</script>
+</body>
+</html>
